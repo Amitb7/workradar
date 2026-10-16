@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WorkRadar – AI Workflow</title>
+<style>
+@page { size: A4; margin: 12mm 13mm 11mm; }
+* { box-sizing: border-box; }
+body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 8.6pt; line-height: 1.38; color: #1a1f2e; margin: 0; }
+h1 { font-size: 16pt; margin: 0; color: #312e81; }
+h2 { font-size: 9.8pt; margin: 10px 0 4px; color: #4338ca; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1.2px solid #c7d2fe; padding-bottom: 2px; }
+p { margin: 0 0 5px; }
+ul { margin: 0 0 5px; padding-left: 14px; }
+li { margin-bottom: 2px; }
+.head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2.5px solid #4338ca; padding-bottom: 6px; margin-bottom: 4px; }
+.meta { font-size: 8pt; color: #555; text-align: right; }
+table { width: 100%; border-collapse: collapse; font-size: 7.9pt; margin-bottom: 5px; }
+th, td { border: 1px solid #dfe3ee; padding: 3px 5px; vertical-align: top; text-align: left; }
+th { background: #eef0ff; color: #312e81; }
+.prompt { background: #f6f7fb; border-left: 3px solid #6366f1; padding: 5px 8px; margin: 0 0 5px; font-size: 8pt; border-radius: 0 4px 4px 0; }
+.prompt b { color: #312e81; }
+.fill { background: #fff7ed; border: 1px dashed #ea580c; padding: 6px 8px; border-radius: 5px; }
+.muted { color: #666; }
+code { font-family: Menlo, monospace; font-size: 7.6pt; background: #f1f3f9; padding: 0 3px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="head">
+  <div><h1>WorkRadar — AI Workflow</h1><div class="muted">How AI was used to design and build the MVP, and what was changed by hand</div></div>
+  <div class="meta">Author: Amit Butola · 16 Oct 2026</div>
+</div>
+
+<h2>1. AI tools used</h2>
+<table>
+  <tr><th style="width:22%">Tool</th><th style="width:28%">Used for</th><th>Notes</th></tr>
+  <tr><td><strong>Claude (Cowork mode)</strong></td><td>PRD drafting, information architecture, React code generation, mock data, tests, AI Workflow doc, demo script</td><td>Single agentic session: wrote files, ran the build and tests, took screenshots, reviewed them, and iterated.</td></tr>
+  <tr><td><strong>Claude Design canvas</strong></td><td>UX design file (6 artboards, 15 high-fidelity screens)</td><td>Screens captured from the running app at 2× and laid out with annotations and design rules.</td></tr>
+  <tr><td><strong>Playwright (headless Chromium)</strong></td><td>Automated screenshots, visual QA, PDF rendering</td><td>Script drives every screen and state (errors, empty, toast, mobile, dark) so designs stay in sync with code.</td></tr>
+  <tr><td><strong>Vite + React 18, Vitest, ESLint</strong></td><td>Build, unit tests, lint</td><td>Tests guard the scoring and summary logic that AI generated.</td></tr>
+  <tr><td><strong>Anthropic Messages API (optional)</strong></td><td>LLM-generated daily brief</td><td>Off by default; enabled by pasting an API key in Settings.</td></tr>
+</table>
+
+<h2>2. Significant prompts</h2>
+<div class="prompt"><b>P1 — Framing.</b> "Act as an expert Product Manager. I need to build WorkRadar, an AI-powered web application that consolidates work priorities from Slack, Jira, GitHub and Email for managers… guide me through the six-step process: PRD (max 2 pages), high-fidelity UI designs, functional MVP with Assign / Mark Done / Snooze, AI Workflow document, 5–7 min demo plan, final deliverables."</div>
+<div class="prompt"><b>P2 — Decisions.</b> Chose: build everything in one pass · React + Vite · "Rule-based summary + optional LLM" (so the demo works offline and the LLM can't invent priorities).</div>
+<div class="prompt"><b>P3 — Data model &amp; scoring (internal design step).</b> "Normalise all four sources into one WorkItem shape. Score 0–100 with every point paired to a human-readable reason; tiers P0–P3. Mock data for a 6-person payments team on a release day, timestamps relative to now, including an incident, a stale PR review, blocked teammates, an unassigned customer escalation, FYIs, and items already done today."</div>
+<div class="prompt"><b>P4 — LLM brief prompt (shipped in <code>src/lib/summary.js</code>).</b> "You are WorkRadar, an assistant for an engineering manager… Write her daily brief from the JSON below. Be concrete, cite refs, no fluff, no invented facts. Return ONLY valid JSON with keys headline, topWork (max 3, items she owns that are NOT in attention), happened, attention (only truly urgent), blocked. Use only ids that appear in the input."</div>
+<div class="prompt"><b>P5 — Review loop.</b> After each build: "Screenshot every screen and state, look at them, and fix anything that looks wrong or reads poorly." This produced the fixes listed in section 4.</div>
+
+<h2>3. What AI generated</h2>
+<ul>
+  <li><strong>PRD</strong> — problem statement, personas (Neha, Rahul, Meera), before/after journey, metrics, scope, assumptions, must/nice feature table; condensed to two pages.</li>
+  <li><strong>Application code</strong> (~2,200 lines): store with undoable actions and local persistence, hash router, priority engine, search with operators, rules-based + LLM brief, 5 pages, shared components, CSS design system with dark mode and phone layout.</li>
+  <li><strong>Mock data</strong> — 26 realistic cross-tool items with threads, blockers and relations.</li>
+  <li><strong>Unit tests</strong> — 7 Vitest tests (scores equal the sum of reasons, ranking sanity, blocked grouping, brief sections, search operators).</li>
+  <li><strong>UX design file</strong>, screenshots, this document and the demo script.</li>
+</ul>
+
+<h2>4. What was modified after reviewing AI output</h2>
+<table>
+  <tr><th style="width:27%">Issue found in review</th><th style="width:38%">Change made</th><th>Why it matters</th></tr>
+  <tr><td>"Top work" and "Needs attention" in the brief listed the <em>same</em> three items.</td><td>Redefined: Attention = P0 items; Top work = highest items the manager owns that are <em>not</em> P0. Added a test that the two never overlap.</td><td>Each section must answer a different question from the brief.</td></tr>
+  <tr><td>"KYC designs ready for your approval" ranked P3 although approving it unblocks Priya.</td><td>Added <code>unblocks</code> signal (+15) and a "blocked ≥ 24 h" bonus; suggested next step now says "Approve — Priya is blocked until you do."</td><td>Unblocking people is a core manager job; ranking must reflect it.</td></tr>
+  <tr><td>Blocked list cited a Slack DM ("DM · Priya Nair") instead of the ticket.</td><td>Prefer the Jira ticket / GitHub issue as the reference; fall back to the channel.</td><td>Managers think in tickets, not DMs.</td></tr>
+  <tr><td>Tier badge rendered huge and clipped in the "Why this priority" card.</td><td>CSS selector scoped to the score number only.</td><td>Visual polish on the key trust element.</td></tr>
+  <tr><td>Search "Operators" help broke into one code block per line.</td><td>Wrapped in a paragraph so it flows inline.</td><td>Readability.</td></tr>
+  <tr><td>"Completed today" still counted items from a source that failed to sync.</td><td>KPI uses only synced sources.</td><td>Numbers must match what is on screen.</td></tr>
+  <tr><td>Emoji in an empty state; ESLint prop-types noise.</td><td>Replaced with plain text; disabled prop-types rule (no TypeScript/PropTypes in this project).</td><td>Professional tone; clean lint (0 errors).</td></tr>
+</table>
+<div class="fill"><strong>Manual changes by Amit (fill in before submitting):</strong> list anything you edited yourself — e.g. persona details, metric targets, copy, colours, extra mock items, deployment settings. <span class="muted">Example: "Changed North-star target from 3 to 5 min after talking to two managers."</span></div>
+
+<h2>5. Key trade-offs</h2>
+<table>
+  <tr><th style="width:24%">Decision</th><th style="width:38%">Chosen</th><th>Trade-off</th></tr>
+  <tr><td>How to rank</td><td>Transparent rules engine (weights in code), not an LLM</td><td>+ explainable, testable, instant, free. − weights are hand-tuned; needs a feedback loop to personalise.</td></tr>
+  <tr><td>How to summarise</td><td>Rules-based brief by default, optional LLM over the <em>already-ranked</em> list with JSON + ID validation</td><td>+ no hallucinated items, works offline. − rule text is less fluent than an LLM.</td></tr>
+  <tr><td>Data</td><td>Mock data, relative timestamps</td><td>+ demo always looks like "today", no OAuth setup. − real-world messiness (duplicates, noisy bots) not exercised.</td></tr>
+  <tr><td>LLM call location</td><td>Directly from the browser with the user's own key</td><td>+ no backend needed for the MVP. − not production-safe; production would proxy through a server.</td></tr>
+  <tr><td>Actions</td><td>Local state + Undo toast, persisted in localStorage</td><td>+ fast, no confirm dialogs. − does not write back to Jira/Slack yet.</td></tr>
+  <tr><td>Design process</td><td>Code-first: screens designed in the browser, then captured into the design file</td><td>+ design and product never drift; real states. − less room for wide early exploration than a Figma-first flow.</td></tr>
+  <tr><td>Routing / deps</td><td>Tiny hash router, one icon library</td><td>+ small bundle (≈68 KB gzip), deep links work on any static host. − fewer router features.</td></tr>
+</table>
+
+<h2>6. Where AI helped most / least</h2>
+<ul>
+  <li><strong>Most:</strong> scaffolding the whole app and states quickly; generating believable cross-tool mock data; catching its own visual bugs from screenshots.</li>
+  <li><strong>Least:</strong> product judgement — e.g. the first brief duplicated sections and under-ranked "unblocking" work; these needed a PM's review against the user's actual questions.</li>
+</ul>
+</body>
+</html>

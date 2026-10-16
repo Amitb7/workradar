@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WorkRadar – Product Requirements Document</title>
+<style>
+@page { size: A4; margin: 10mm 12mm 9mm; }
+* { box-sizing: border-box; }
+body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 8pt; line-height: 1.3; color: #1a1f2e; margin: 0; }
+h1 { font-size: 15pt; margin: 0; color: #312e81; letter-spacing: -.01em; }
+h2 { font-size: 9.4pt; margin: 7px 0 3px; color: #4338ca; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1.2px solid #c7d2fe; padding-bottom: 2px; }
+h3 { font-size: 9pt; margin: 0 0 2px; }
+p { margin: 0 0 4px; }
+ul { margin: 0 0 4px; padding-left: 14px; }
+li { margin-bottom: 1px; }
+.head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2.5px solid #4338ca; padding-bottom: 6px; }
+.meta { font-size: 8pt; color: #555; text-align: right; }
+.tag { display: inline-block; background: #eef0ff; color: #3730a3; border-radius: 3px; padding: 0 5px; font-weight: 600; font-size: 7.6pt; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.box { border: 1px solid #dfe3ee; border-radius: 5px; padding: 6px 8px; background: #fafbff; }
+.persona h3 { color: #312e81; }
+.persona .q { font-style: italic; color: #444; margin-top: 3px; }
+table { width: 100%; border-collapse: collapse; font-size: 7.5pt; margin-bottom: 4px; }
+th, td { border: 1px solid #dfe3ee; padding: 2px 4px; vertical-align: top; text-align: left; }
+th { background: #eef0ff; color: #312e81; font-weight: 700; }
+.muted { color: #666; }
+.must { color: #166534; font-weight: 700; }
+.nice { color: #9a3412; font-weight: 700; }
+.ps { background: #fff7ed; border-left: 3px solid #ea580c; padding: 6px 9px; border-radius: 0 5px 5px 0; }
+.page-break { break-before: page; }
+.small { font-size: 7.4pt; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div>
+    <h1>WorkRadar — Product Requirements Document</h1>
+    <div class="muted">AI-powered work prioritisation dashboard for managers</div>
+  </div>
+  <div class="meta">Author: Amit Butola · Version 1.0 (MVP) · 16 Oct 2026<br>Status: <span class="tag">MVP built on mock data</span></div>
+</div>
+
+<h2>1. Problem statement</h2>
+<div class="ps">
+<p><strong>Managers cannot see what matters today without opening four tools.</strong> An engineering manager's work signals are scattered across Slack (requests, incidents, mentions), Jira (tickets, deadlines, blocked status), GitHub (reviews, failing CI) and Email (escalations, leadership asks). Each tool ranks by recency, not importance, and none of them shows <em>who is blocked on whom</em>. The result: the first 30–60 minutes of the day go into tab-hopping and mental triage, urgent items surface late, and teammates stay blocked longer than necessary.</p>
+<p style="margin:0"><strong>WorkRadar</strong> consolidates these signals into one explainable, ranked view that answers four questions in under three minutes: <strong>What is my top work today? What happened today? What needs immediate attention? Who is blocked?</strong></p>
+</div>
+
+<div class="grid2">
+<div>
+<h2>2. Target users</h2>
+<ul>
+  <li><strong>Primary:</strong> Engineering managers / team leads running 5–12 people across Slack, Jira, GitHub and Email.</li>
+  <li><strong>Secondary:</strong> Product managers and tech leads who coordinate releases and unblock cross-functional work.</li>
+  <li><strong>Later:</strong> Directors needing a multi-team roll-up (out of MVP scope).</li>
+</ul>
+<h2>5. Key pain points</h2>
+<ol style="margin:0 0 4px; padding-left:15px">
+  <li><strong>Fragmentation</strong> — 4+ tools, 4 inboxes, no single priority order.</li>
+  <li><strong>Noise over signal</strong> — FYIs and bot messages look as loud as incidents.</li>
+  <li><strong>Invisible blockers</strong> — "waiting on X" lives in DMs; managers learn days late.</li>
+  <li><strong>Stale asks on the manager</strong> — PR reviews and approvals age silently and block the team.</li>
+  <li><strong>No "why"</strong> — existing AI summaries are opaque, so managers don't trust them.</li>
+  <li><strong>Unowned work</strong> — high-severity items with no assignee fall through the cracks.</li>
+</ol>
+</div>
+<div>
+<h2>3. User personas</h2>
+<div class="box persona" style="margin-bottom:5px">
+  <h3>Neha Sharma — Engineering Manager, Payments (primary)</h3>
+  <p class="small">8 years experience · 6 reports · on-call escalation point · ~150 Slack messages/day</p>
+  <p class="small"><strong>Goals:</strong> protect delivery dates, unblock the team fast, respond to incidents and customers on time. <strong>Frustrations:</strong> misses buried @mentions, learns about blockers in stand-up the next day, reviews pile up.</p>
+  <p class="q">"I don't need more notifications. I need someone to tell me the three things that will hurt if I ignore them."</p>
+</div>
+<div class="grid2" style="gap:6px">
+  <div class="box persona"><h3>Rahul Verma — Tech Lead</h3><p class="small">Owns CI and code quality; wants to see which PRs and builds block merges, and route reviews quickly.</p></div>
+  <div class="box persona"><h3>Meera Iyer — Product Manager</h3><p class="small">Runs releases; needs to know what is at risk for today's release and which approvals are pending.</p></div>
+</div>
+</div>
+</div>
+
+<h2>4. User journey — Neha's morning, before vs. with WorkRadar</h2>
+<table>
+  <tr><th style="width:14%">Stage</th><th style="width:30%">Today (without WorkRadar)</th><th style="width:34%">With WorkRadar</th><th>Outcome</th></tr>
+  <tr><td><strong>1. Arrive (9:00)</strong></td><td>Opens Slack, Jira, GitHub, Gmail in turn; scrolls unread.</td><td>Opens one Dashboard; reads the <strong>AI daily brief</strong> (4 sections).</td><td>Situational awareness in &lt;3 min</td></tr>
+  <tr><td><strong>2. Triage</strong></td><td>Mentally ranks ~40 items by gut feel.</td><td><strong>Priority Feed</strong> groups items P0–P3 with a "Why" line for each.</td><td>Trusts the order; no re-ranking</td></tr>
+  <tr><td><strong>3. Act on fires</strong></td><td>Finds the rollback thread 90 min late.</td><td>Opens P0 <strong>Item Details</strong>: suggested next step, thread, related Jira/GitHub items.</td><td>Decision made inside SLO</td></tr>
+  <tr><td><strong>4. Unblock team</strong></td><td>Learns at stand-up that Priya waited a day.</td><td>"Who is blocked" panel shows person → waiting on → since when.</td><td>Blocker cleared same morning</td></tr>
+  <tr><td><strong>5. Delegate / defer</strong></td><td>Copies links into DMs; forgets low items.</td><td><strong>Assign</strong> (with suggested owner), <strong>Snooze</strong>, <strong>Mark Done</strong> — with Undo.</td><td>Clean list; nothing lost</td></tr>
+  <tr><td><strong>6. Check-in (2 pm)</strong></td><td>Repeats the tab-hopping.</td><td><strong>Search</strong> (<code>is:blocked</code>, <code>@priya</code>, <code>from:jira</code>) or refresh the brief.</td><td>Answers in seconds</td></tr>
+</table>
+
+<h2>6. Success metrics</h2>
+<div class="grid2">
+<table>
+  <tr><th>Metric</th><th>Target (90 days post-launch)</th></tr>
+  <tr><td><strong>North star: Time-to-clarity</strong> — open app → first meaningful action</td><td>&lt; 3 min (baseline to be measured, hypothesis 30+ min)</td></tr>
+  <tr><td>Weekly active managers / onboarded managers</td><td>≥ 60%; ≥ 4 active days per week</td></tr>
+  <tr><td>P0 items actioned (assign / done / reply) within 2 h</td><td>≥ 85%</td></tr>
+  <tr><td>Median time a teammate stays blocked</td><td>−30% vs. baseline</td></tr>
+</table>
+<table>
+  <tr><th>Quality &amp; guardrail metric</th><th>Target</th></tr>
+  <tr><td>Priority precision — top-5 items rated "right" by manager (thumbs feedback)</td><td>≥ 80%</td></tr>
+  <tr><td>Brief accuracy — items in the brief that don't exist in source data</td><td>0 (enforced by ID validation)</td></tr>
+  <tr><td>Manual re-prioritisation / override rate</td><td>&lt; 15% of items</td></tr>
+  <tr><td>Dashboard load (P95) · sync failures shown to user</td><td>&lt; 2 s · 100% surfaced</td></tr>
+</table>
+</div>
+
+<div class="page-break"></div>
+
+<h2>7. MVP scope</h2>
+<div class="grid2">
+<div class="box">
+<h3 class="must">In scope (built)</h3>
+<ul>
+  <li>Unified <strong>WorkItem</strong> model normalising Slack, Jira, GitHub and Email (26 realistic mock items, timestamps relative to "now").</li>
+  <li><strong>Explainable priority engine</strong>: 0–100 score from severity, due date, mentions/review requests, blockers, blocked duration, unblocking value, customer impact, ownership gaps; tiers P0–P3; every point carries a reason.</li>
+  <li><strong>AI daily brief</strong>: Top work · Needs attention · Who is blocked · What happened. Deterministic rules engine by default; optional LLM regeneration with JSON schema + ID validation and automatic fallback.</li>
+  <li><strong>Dashboard</strong>, <strong>Priority Feed</strong> (views + filters), <strong>Item Details</strong> (score breakdown, next step, related items), <strong>Search</strong> (operators, highlights).</li>
+  <li><strong>Actions</strong>: Assign (suggested owner), Mark Done / Reopen, Snooze / Unsnooze — with toast + Undo, persisted locally.</li>
+  <li><strong>Empty / error states</strong>: no results, filters empty, partial source failure banner, all-sources failure with retry, item not found, loading skeletons.</li>
+  <li>Responsive (phone → desktop), dark mode, keyboard "/" to search.</li>
+</ul>
+</div>
+<div class="box">
+<h3 class="nice">Out of scope (MVP)</h3>
+<ul>
+  <li>Real OAuth connectors and live ingestion (mock data per brief).</li>
+  <li>Write-back to source tools (actions are local in MVP).</li>
+  <li>Multi-team / director roll-up, role-based access.</li>
+  <li>Push / Slack DM notifications, scheduled email digests.</li>
+  <li>Learned (ML) personalisation of weights.</li>
+</ul>
+<h3 style="margin-top:6px">Key product decisions</h3>
+<ul>
+  <li><strong>Explainability over magic:</strong> ranking is rules-based and transparent; the LLM only <em>summarises</em> a pre-ranked list, so it cannot invent priorities.</li>
+  <li><strong>Graceful degradation:</strong> one source failing never blanks the app; the user is told which data is missing.</li>
+  <li><strong>Actions in-place:</strong> Assign/Snooze/Done on every card to cut clicks; Undo instead of confirm dialogs.</li>
+  <li><strong>Privacy-first default:</strong> no data leaves the browser unless the user adds an LLM key.</li>
+</ul>
+</div>
+</div>
+
+<h2>8. Assumptions</h2>
+<div class="grid2">
+<ul>
+  <li>Slack, Jira, GitHub and Email together hold the large majority of a manager's actionable work signals.</li>
+  <li>Managers will trust and act on a ranked list <strong>if</strong> each item shows why it is ranked.</li>
+  <li>Severity, due date, direct asks and blockers are reliable proxies for urgency in the first version.</li>
+  <li>"Blocked" can be detected from Jira status, labels and phrases like "waiting on / blocked by" in messages.</li>
+</ul>
+<ul>
+  <li>Read-only access is acceptable to security teams for v1; write-back comes later.</li>
+  <li>Mock data is representative of a 6-person payments team on a release day.</li>
+  <li>An LLM is helpful for tone and synthesis but not required for correctness.</li>
+  <li>Users work primarily on desktop in the morning and check in on mobile later.</li>
+</ul>
+</div>
+
+<h2>9. Features — Must-have vs. Nice-to-have</h2>
+<table>
+  <tr><th style="width:30%">Feature</th><th style="width:11%">Priority</th><th>Description / acceptance criteria</th><th style="width:9%">MVP</th></tr>
+  <tr><td>Unified ingestion + data model</td><td class="must">Must</td><td>All four sources normalised to one WorkItem (source, ref, owner, due, severity, blocked, thread, related).</td><td>✔ (mock)</td></tr>
+  <tr><td>Explainable priority score &amp; tiers</td><td class="must">Must</td><td>Score 0–100, P0–P3; reasons shown on card and detail; reasons sum to the score (unit-tested).</td><td>✔</td></tr>
+  <tr><td>AI daily brief (4 questions)</td><td class="must">Must</td><td>Top work, what happened, needs attention, who is blocked; every line links to its item; no duplicates between sections.</td><td>✔</td></tr>
+  <tr><td>Dashboard with KPIs</td><td class="must">Must</td><td>Need-attention, blocked, due-today, completed-today counts; top 5 priorities; blocked teammates; activity by source.</td><td>✔</td></tr>
+  <tr><td>Priority Feed with filters</td><td class="must">Must</td><td>Views: All, Needs me, Blocked, Unassigned, Snoozed, Done; source + tier filters; grouped by tier.</td><td>✔</td></tr>
+  <tr><td>Item Details</td><td class="must">Must</td><td>Description, thread, score breakdown, suggested next step, related cross-tool items, deep-link placeholder.</td><td>✔</td></tr>
+  <tr><td>Search across sources</td><td class="must">Must</td><td>Keyword + operators (<code>from:</code>, <code>is:</code>, <code>p0</code>, <code>@name</code>), highlighted matches, recent searches.</td><td>✔</td></tr>
+  <tr><td>Assign / Mark Done / Snooze</td><td class="must">Must</td><td>One click from any card; toast with Undo; snoozed items return automatically.</td><td>✔</td></tr>
+  <tr><td>Empty, loading and error states</td><td class="must">Must</td><td>Every screen has a designed empty and failure state; partial failures are labelled.</td><td>✔</td></tr>
+  <tr><td>LLM-generated brief</td><td class="nice">Nice</td><td>Optional key; schema-validated JSON; falls back to rules on any error.</td><td>✔ (optional)</td></tr>
+  <tr><td>Suggested owner on assign</td><td class="nice">Nice</td><td>Recommends least-loaded teammate for unassigned items.</td><td>✔</td></tr>
+  <tr><td>Real connectors + write-back</td><td class="nice">Nice</td><td>OAuth for Slack/Jira/GitHub/Gmail; assign/close syncs back to source.</td><td>—</td></tr>
+  <tr><td>Feedback loop on ranking</td><td class="nice">Nice</td><td>Thumbs up/down per item to tune weights; personal weight presets.</td><td>—</td></tr>
+  <tr><td>Notifications &amp; digests</td><td class="nice">Nice</td><td>Morning brief via Slack DM/email; alert when a P0 appears or a teammate is blocked &gt; 24 h.</td><td>—</td></tr>
+  <tr><td>Natural-language Q&amp;A</td><td class="nice">Nice</td><td>"What is at risk for today's release?" answered over the unified data.</td><td>—</td></tr>
+</table>
+
+<h2>10. Risks &amp; mitigations</h2>
+<p class="small"><strong>Wrong ranking erodes trust</strong> → visible reasons, one-click override, feedback loop in v2 · <strong>LLM hallucination</strong> → LLM only summarises pre-ranked items, output IDs validated, deterministic fallback · <strong>Privacy</strong> → read-only scopes, local-first, LLM opt-in · <strong>Connector outages</strong> → per-source sync status and partial-results banner.</p>
+
+</body>
+</html>
