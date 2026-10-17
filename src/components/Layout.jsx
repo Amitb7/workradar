@@ -44,7 +44,7 @@ export default function Layout({ route, children }) {
     <div className="shell">
       <aside className="sidebar">
         <a className="brand" href="#/">
-          <img src="/radar.svg" alt="" width="28" height="28" />
+          <img src={`${import.meta.env.BASE_URL}radar.svg`} alt="" width="28" height="28" />
           <span>WorkRadar</span>
         </a>
         <nav aria-label="Main">

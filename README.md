@@ -1,5 +1,7 @@
 # WorkRadar
 
+**Live demo:** https://amitb7.github.io/workradar/
+
 **AI-powered work prioritisation dashboard for managers.** WorkRadar pulls work signals from Slack, Jira, GitHub and Email into one explainable, ranked view so a manager can answer four questions in under three minutes:
 
 1. What is my **top work** today?
